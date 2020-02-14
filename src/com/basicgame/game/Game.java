@@ -10,6 +10,7 @@ import com.basicgame.game.display.Display;
 import com.basicgame.game.gfx.Assets;
 import com.basicgame.game.gfx.ImageLoader;
 import com.basicgame.game.gfx.SpriteSheet;
+import com.basicgame.game.input.KeyManager;
 import com.basicgame.game.state.GameState;
 import com.basicgame.game.state.State;
 import java.awt.Color;
@@ -36,26 +37,35 @@ public class Game implements Runnable {
     
     //States
     private State gameState;
+    private State menuState;
+    
+    //Inputs
+    private KeyManager keyManager;
     
     public Game(String title, int width, int height)
     {
         this.width=width;
         this.height=height;
         this.title=title;
-        
+        keyManager = new KeyManager();
     }
     
     private void init() 
     {
        display = new Display(title, width, height);
+       display.getFrame().addKeyListener(keyManager);
        Assets.init();
-       gameState =new GameState();
+       
+       gameState =new GameState(this);
+       menuState = new GameState(this);
        State.setState(gameState);
+       
        
     }
     
     private void tick()
     {
+        keyManager.tick();
         if(State.getState()!=null)
             State.getState().tick();
        
@@ -116,6 +126,11 @@ public class Game implements Runnable {
             }
         }
         stop(); //dodajemy metodę stop gdyby nasz watek sie nie zatrzymał z jakiegoś powodu po zmienieniu stanu zmiennej "runnable"
+    }
+    
+    public KeyManager getKeyManager()
+    {
+        return keyManager;
     }
     
     public synchronized void start()
